@@ -50,7 +50,7 @@ export default function Home() {
               
               {/* Video on mobile - appears here */}
               <div className="w-full lg:hidden">
-                <VideoEmbed videoId="8diwh5uzLMQ" title="Come Home: Ghost Stories from Bangladesh Trailer" />
+                <VideoEmbed videoId="PRW6SYj90f4" title="Elomelo Showreel" />
               </div>
               
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start" style={{ paddingTop: '24px' }}>
@@ -67,7 +67,7 @@ export default function Home() {
 
             {/* Video on desktop - appears here */}
             <div className="w-full hidden lg:block">
-              <VideoEmbed videoId="8diwh5uzLMQ" title="Come Home: Ghost Stories from Bangladesh Trailer" />
+              <VideoEmbed videoId="PRW6SYj90f4" title="Elomelo Showreel" />
             </div>
           </div>
         </div>
