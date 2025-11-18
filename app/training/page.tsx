@@ -18,6 +18,7 @@ export default function TrainingPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [mobileScrollIndex, setMobileScrollIndex] = useState(0);
   const [mobileScrollOffset, setMobileScrollOffset] = useState(0);
+  const [mobileContainerHeight, setMobileContainerHeight] = useState(2200);
   const carouselRef = useRef<HTMLDivElement>(null);
   const mobileContainerRef = useRef<HTMLDivElement>(null);
   const mobileCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -82,6 +83,21 @@ export default function TrainingPage() {
   useEffect(() => {
     mobileCardRefs.current = mobileCardRefs.current.slice(0, filteredGames.length);
   }, [filteredGames.length]);
+
+  // Calculate container height based on actual card heights (max 4 cards)
+  useEffect(() => {
+    const cardsToShow = Math.min(filteredGames.length, mobileCardsToShow);
+    if (cardsToShow > 0 && mobileCardRefs.current[cardsToShow - 1]) {
+      // Wait for images to load
+      setTimeout(() => {
+        const lastVisibleCard = mobileCardRefs.current[cardsToShow - 1];
+        if (lastVisibleCard) {
+          const height = lastVisibleCard.offsetTop + lastVisibleCard.offsetHeight;
+          setMobileContainerHeight(height);
+        }
+      }, 100);
+    }
+  }, [filteredGames.length, mobileCardsToShow]);
 
   return (
     <main className="min-h-screen bg-(--color-warm-white)">
@@ -315,8 +331,7 @@ export default function TrainingPage() {
                   <div 
                     className="overflow-hidden w-full max-w-md"
                     style={{
-                      minHeight: '2200px',
-                      maxHeight: '2200px'
+                      height: `${mobileContainerHeight}px`
                     }}
                   >
                     <div
