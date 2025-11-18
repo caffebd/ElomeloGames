@@ -155,7 +155,7 @@ export default function Home() {
                   Elomelo Games is a small independent game studio from <a href="https://en.wikipedia.org/wiki/Sylhet" target="_blank" rel="noopener noreferrer" className="text-(--color-coral) hover:underline font-semibold">Sylhet, Bangladesh</a>. Our team is based in both Bangladesh and the UK.
                 </p>
                 <p className="italic">
-                  <strong>Elomelo</strong> (এলোমেলো) means "random" in Bangla and kind of sums up our approach to life.
+                  <strong>Elomelo</strong> (এলোমেলো) means &ldquo;random&rdquo; in Bangla and kind of sums up our approach to life.
                 </p>
                 <p>
                   We focus on narrative, adventure, puzzle and horror games.
