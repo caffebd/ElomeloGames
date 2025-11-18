@@ -34,8 +34,8 @@ export default function Home() {
       <section className="relative flex items-center justify-center gradient-coral-yellow" style={{ minHeight: '70vh', paddingTop: '80px' }}>
         <div className="absolute inset-0 bg-black/10"></div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
-          <div className="grid grid-cols-1 items-center" style={{ gridTemplateColumns: '1fr 1.5fr', gap: '48px' }}>
+        <div className="relative z-10 max-w-7xl mx-auto sm:px-6 lg:px-8" style={{ paddingTop: '40px', paddingBottom: '40px', paddingLeft: '20px', paddingRight: '20px' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] items-center" style={{ gap: '48px' }}>
             {/* Text Content */}
             <div className="text-white" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <h1 className="heading-xl">
@@ -47,7 +47,13 @@ export default function Home() {
               <p className="body-lg">
                 We make narrative games, puzzle games, adventure games, indie horror and Bangla language apps.
               </p>
-              <div className="flex flex-wrap gap-4" style={{ paddingTop: '24px' }}>
+              
+              {/* Video on mobile - appears here */}
+              <div className="w-full lg:hidden">
+                <VideoEmbed videoId="8diwh5uzLMQ" title="Come Home: Ghost Stories from Bangladesh Trailer" />
+              </div>
+              
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start" style={{ paddingTop: '24px' }}>
                 <Button
                   size="lg"
                   style={{ padding: '20px 40px', fontSize: '18px', height: 'auto' }}
@@ -59,8 +65,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Video */}
-            <div className="w-full">
+            {/* Video on desktop - appears here */}
+            <div className="w-full hidden lg:block">
               <VideoEmbed videoId="8diwh5uzLMQ" title="Come Home: Ghost Stories from Bangladesh Trailer" />
             </div>
           </div>
@@ -126,18 +132,19 @@ export default function Home() {
 
       {/* About Section */}
       <section id="about" className="bg-white flex justify-center" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto sm:px-6 lg:px-8" style={{ paddingLeft: '20px', paddingRight: '20px' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Image */}
-            <div className="relative h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+            <a href="https://en.wikipedia.org/wiki/Sylhet" target="_blank" rel="noopener noreferrer" className="rounded-2xl overflow-hidden shadow-2xl hover:opacity-90 transition-opacity">
               <Image
                 src="/images/about/view-of-sylhet.png"
                 alt="View of Sylhet, Bangladesh"
-                fill
-                className="object-cover"
+                width={700}
+                height={467}
+                className="w-full h-auto"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-            </div>
+            </a>
 
             {/* Content */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -145,32 +152,20 @@ export default function Home() {
               
               <div className="body-lg text-gray-700" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p>
-                  We make narrative games, puzzle games, adventure games, indie horror and Bangla language apps.
+                  Elomelo Games is a small independent game studio from <a href="https://en.wikipedia.org/wiki/Sylhet" target="_blank" rel="noopener noreferrer" className="text-(--color-coral) hover:underline font-semibold">Sylhet, Bangladesh</a>. Our team is based in both Bangladesh and the UK.
                 </p>
-                
-                <p>
-                  We also <a href="/training" className="text-(--color-coral) hover:underline font-semibold">work with young people</a> from our local community to provide training in graphic design, coding and game design.
-                </p>
-                
                 <p className="italic">
                   <strong>Elomelo</strong> (এলোমেলো) means "random" in Bangla and kind of sums up our approach to life.
                 </p>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-6" style={{ paddingTop: '24px' }}>
-                <div className="text-center">
-                  <div className="impact-text text-(--color-coral)">6+</div>
-                  <p className="body-md text-gray-600">Games</p>
-                </div>
-                <div className="text-center">
-                  <div className="impact-text text-(--color-magenta)">3</div>
-                  <p className="body-md text-gray-600">Platforms</p>
-                </div>
-                <div className="text-center">
-                  <div className="impact-text text-(--color-yellow-dark)">∞</div>
-                  <p className="body-md text-gray-600">Stories</p>
-                </div>
+                <p>
+                  We focus on narrative, adventure, puzzle and horror games.
+                </p>
+                
+                <p>
+                  We also <a href="/training" className="text-(--color-coral) hover:underline font-semibold">work with young people</a> from our local community to provide training in art, coding and game design.
+                </p>
+                
+          
               </div>
             </div>
           </div>
@@ -179,18 +174,23 @@ export default function Home() {
 
       {/* Contact Section */}
       <section id="contact" className="py-20 gradient-magenta-coral flex justify-center">
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white flex flex-col items-center">
-          <h2 className="heading-lg mb-6 text-center">Let's Connect</h2>
-          <p className="body-lg mb-8 text-center max-w-2xl">
-            Have a question or want to collaborate? We'd love to hear from you!
-          </p>
-          <Button
-            size="lg"
-            className="bg-white text-(--color-magenta) hover:bg-gray-100 font-semibold px-10 py-7 h-auto"
-            asChild
+        <div className="w-full max-w-4xl mx-auto sm:px-6 lg:px-8" style={{ paddingTop: '40px', paddingBottom: '40px', paddingLeft: '20px', paddingRight: '20px' }}>
+          <a 
+            href="https://bsky.app/profile/elomelo.games"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 hover:opacity-80 transition-opacity"
           >
-            <a href="mailto:admin@elomelostudio.com" className="text-lg">Get in Touch</a>
-          </Button>
+            <div style={{ width: '80px', height: '80px', position: 'relative', flexShrink: 0 }}>
+              <Image
+                src="/images/logos/Bluesky_Logo.png"
+                alt="Bluesky"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <h2 className="heading-lg text-white text-center lg:text-left">Follow us on Bluesky</h2>
+          </a>
         </div>
       </section>
 

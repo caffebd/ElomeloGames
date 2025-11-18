@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Twitter, Facebook, Instagram } from 'lucide-react';
 import { games } from '@/lib/data/games';
 import { formatGameStatus, formatPlatformName } from '@/lib/formatters';
+import { ImageGallery } from '@/components/ImageGallery';
 
 export async function generateStaticParams() {
   return games.map((game) => ({
@@ -25,10 +26,24 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
     notFound();
   }
 
+  // Detect if game has portrait or landscape screenshots
+  // Portrait games (like mobile games) get 4 columns, landscape get 3
+  const isPortraitGame = game.platforms.includes('Mobile');
+
   const statusVariant = {
     'available': 'default',
     'demo': 'secondary',
-    'coming-soon': 'outline'
+    'coming-soon': 'outline',
+    'in development': 'outline',
+    'playtest': 'default'
+  } as const;
+
+  const statusStyles = {
+    'available': { backgroundColor: '#16a34a', color: 'white' },
+    'demo': {},
+    'coming-soon': {},
+    'in development': {},
+    'playtest': { backgroundColor: '#f59e0b', color: 'white' }
   } as const;
 
   return (
@@ -36,7 +51,7 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
       <Navigation />
 
       <div style={{ paddingTop: '120px', paddingBottom: '80px', display: 'flex', justifyContent: 'center' }}>
-        <div className="px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1280px', width: '100%' }}>
+        <div style={{ maxWidth: '1280px', width: '100%', paddingLeft: '20px', paddingRight: '20px' }} className="sm:px-6 lg:px-8">
           {/* Back Button */}
           <div style={{ marginBottom: '32px' }}>
             <Link href="/#games">
@@ -70,7 +85,7 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
               <div>
                 <div className="flex items-start justify-between gap-4" style={{ marginBottom: '16px' }}>
                   <h1 className="heading-lg text-(--color-soft-black)">{game.title}</h1>
-                  <Badge variant={statusVariant[game.status]} style={{ padding: '6px 14px' }} className="shrink-0 text-sm font-semibold">
+                  <Badge variant={statusVariant[game.status]} style={{ padding: '6px 14px', ...statusStyles[game.status] }} className="shrink-0 text-sm font-semibold">
                     {formatGameStatus(game.status)}
                   </Badge>
                 </div>
@@ -148,13 +163,60 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
               <div className="bg-gradient-coral-yellow rounded-2xl" style={{ padding: '24px' }}>
                 <h3 className="heading-sm" style={{ marginBottom: '8px', color: 'var(--color-soft-black)' }}>Love this game?</h3>
                 <p className="body-md" style={{ marginBottom: '16px', color: 'var(--color-soft-black)' }}>Share it with your friends!</p>
-                <Button
-                  variant="secondary"
-                  style={{ padding: '14px 24px', height: 'auto' }}
-                  className="w-full bg-white hover:bg-gray-100 font-semibold"
-                >
-                  <span className="text-base" style={{ color: 'var(--color-coral)' }}>Share Game</span>
-                </Button>
+                
+                {/* Social Share Links */}
+                <div className="flex gap-3 justify-center">
+                  {/* Bluesky */}
+                  <a
+                    href={`https://bsky.app/intent/compose?text=${encodeURIComponent(`I've just discovered ${game.title}. I think it's well worth a look. Find out more at ${game.links.length > 0 ? game.links[0].url : typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-md"
+                    aria-label="Share on Bluesky"
+                  >
+                    <div style={{ width: '24px', height: '24px', position: 'relative' }}>
+                      <Image
+                        src="/images/logos/Bluesky_Logo.png"
+                        alt="Bluesky"
+                        width={24}
+                        height={24}
+                      />
+                    </div>
+                  </a>
+
+                  {/* Twitter/X */}
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I've just discovered ${game.title}. I think it's well worth a look. Find out more at ${game.links.length > 0 ? game.links[0].url : typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-md"
+                    aria-label="Share on Twitter"
+                  >
+                    <Twitter size={24} style={{ color: '#000000' }} />
+                  </a>
+
+                  {/* Facebook */}
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(game.links.length > 0 ? game.links[0].url : typeof window !== 'undefined' ? window.location.href : '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-md"
+                    aria-label="Share on Facebook"
+                  >
+                    <Facebook size={24} style={{ color: '#1877f2' }} />
+                  </a>
+
+                  {/* Instagram - Note: Instagram doesn't support direct web sharing, so this links to profile */}
+                  <a
+                    href="https://www.instagram.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-12 h-12 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-md"
+                    aria-label="Follow on Instagram"
+                  >
+                    <Instagram size={24} style={{ color: '#e4405f' }} />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -163,19 +225,11 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
           {game.images.length > 1 && (
             <div style={{ marginTop: '80px' }}>
               <h3 className="heading-lg text-(--color-magenta)" style={{ marginBottom: '32px' }}>Screenshots</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '24px' }}>
-                {game.images.slice(1).map((image, index) => (
-                  <AspectRatio key={index} ratio={16 / 9} className="bg-gray-100 rounded-lg overflow-hidden shadow-md">
-                    <Image
-                      src={image}
-                      alt={`${game.title} screenshot ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </AspectRatio>
-                ))}
-              </div>
+              <ImageGallery 
+                images={game.images.slice(1)} 
+                gameTitle={game.title}
+                isPortrait={isPortraitGame}
+              />
             </div>
           )}
 

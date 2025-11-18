@@ -1,8 +1,8 @@
 // Game status types
-export type GameStatus = 'available' | 'demo' | 'coming-soon';
+export type GameStatus = 'available' | 'demo' | 'coming-soon' | 'in development' | 'playtest';
 
 // Game platform types
-export type GamePlatform = 'steam' | 'itch' | 'google-play' | 'web';
+export type GamePlatform = 'PC' | 'Mobile' | 'Web';
 
 // Game category types
 export type GameCategory = 'horror' | 'puzzle' | 'narrative' | 'adventure' | 'mobile' | 'detective';

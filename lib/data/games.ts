@@ -5,7 +5,7 @@ export const games: Game[] = [
     id: '1',
     slug: 'wrongly-accused',
     title: 'Wrongly Accused',
-    subtitle: 'Coming soon',
+    subtitle: 'Investigate crimes set throughout history to clear the name of the wrongly accused.',
     description: 'A full 3D version of our 2d game jam game, "Wrongly Accused". Investigate crimes set throughout history; in each case clear the name of the wrongly accused by finding clues, interviewing suspects, and deducing the truth.',
     thumbnail: '/images/games/WronglyAccusedScreenshots/wrongly_accused_3d_Main.png',
     images: [
@@ -16,9 +16,13 @@ export const games: Game[] = [
       '/images/games/WronglyAccusedScreenshots/wrongly_accused_3d_5.png',
       '/images/games/WronglyAccusedScreenshots/wrongly_accused_3d_6.png'
     ],
-    status: 'coming-soon',
-    platforms: [],
-    links: [],
+    status: 'playtest',
+    platforms: ['PC'],
+    links: [{
+        platform: 'PC',
+        url: 'https://store.steampowered.com/app/3854800/Wrongly_Accused/',
+        label: 'wishlist on steam'
+    }],
     categories: ['detective', 'narrative', 'adventure'],
     featured: false
   },
@@ -38,11 +42,11 @@ export const games: Game[] = [
       '/images/games/ComeHomeScreenshots/ComeHome5.webp',
       '/images/games/ComeHomeScreenshots/ComeHome6.webp'
     ],
-    status: 'demo',
-    platforms: ['steam'],
+    status: 'in development',
+    platforms: ['PC'],
     links: [
       {
-        platform: 'steam',
+        platform: 'PC',
         url: 'https://store.steampowered.com/app/3025470/Come_Home_Ghost_Stories_from_Bangladesh/',
         label: 'wishlist on steam'
       }
@@ -64,10 +68,10 @@ export const games: Game[] = [
       '/images/games/DrSarahScreenshots/Screenshot+2024-07-01+200353.webp'
     ],
     status: 'available',
-    platforms: ['web'],
+    platforms: ['PC'],
     links: [
       {
-        platform: 'web',
+        platform: 'PC',
         url: 'https://villageofmystery.quest/',
         label: 'learn more'
       }
@@ -90,10 +94,10 @@ export const games: Game[] = [
       '/images/games/TheBuzzScreenshots/buzz_4.png'
     ],
     status: 'available',
-    platforms: ['itch'],
+    platforms: ['PC'],
     links: [
       {
-        platform: 'itch',
+        platform: 'PC',
         url: 'https://elomelo-horror.itch.io/thebuzz',
         label: 'Play at itch.io'
       }
@@ -115,15 +119,15 @@ export const games: Game[] = [
       '/images/games/WronglyAccused2DScreenshots/wrongly_accused_3.webp'
     ],
     status: 'available',
-    platforms: ['itch'],
+    platforms: ['Web', 'PC'],
     links: [
       {
-        platform: 'itch',
+        platform: 'Web',
         url: 'https://elomelogames.itch.io/wrongly-accused',
         label: 'play at itch.io'
       }
     ],
-    categories: ['narrative', 'adventure'],
+    categories: ['narrative', 'adventure', 'detective'],
     featured: false
   },
   {
@@ -141,10 +145,10 @@ export const games: Game[] = [
       '/images/games/BanglaPhraseScreenshots/PHOTO-2024-04-14-20-21-36 (2).png'
     ],
     status: 'available',
-    platforms: ['google-play'],
+    platforms: ['Mobile'],
     links: [
       {
-        platform: 'google-play',
+        platform: 'Mobile',
         url: 'https://play.google.com/store/apps/details?id=com.elomelo.mysterywords',
         label: 'Download on Google Play'
       }

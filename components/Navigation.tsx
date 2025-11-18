@@ -10,10 +10,9 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { href: '/#about', label: 'About' },
-    { href: '/#games', label: 'Games' },
+    { href: '/#games', label: 'Our Games' },
+    { href: '/#about', label: 'About Us' },
     { href: '/training', label: 'Training' },
-    { href: '/#contact', label: 'Contact' },
   ];
 
   return (
@@ -45,6 +44,20 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
+            <a
+              href="https://bsky.app/profile/elomelo.games"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-80 transition-opacity"
+              style={{ width: '32px', height: '32px', position: 'relative', display: 'block' }}
+            >
+              <Image
+                src="/images/logos/Bluesky_Logo.png"
+                alt="Follow us on Bluesky"
+                fill
+                className="object-contain"
+              />
+            </a>
           </div>
 
           {/* Mobile Menu Button */}

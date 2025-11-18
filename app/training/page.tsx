@@ -26,14 +26,14 @@ export default function TrainingPage() {
 
   const filteredGames = selectedCategory === 'all'
     ? studentGames
-    : studentGames.filter(game => game.category === selectedCategory);
+    : studentGames.filter(game => game.categories.includes(selectedCategory));
 
   return (
     <main className="min-h-screen bg-(--color-warm-white)">
       <Navigation />
 
       <div style={{ paddingTop: '120px', paddingBottom: '80px', display: 'flex', justifyContent: 'center' }}>
-        <div className="px-4 sm:px-6 lg:px-8" style={{ maxWidth: '1280px', width: '100%' }}>
+        <div style={{ maxWidth: '1280px', width: '100%', paddingLeft: '20px', paddingRight: '20px' }} className="sm:px-6 lg:px-8">
           {/* Back Button */}
           <div style={{ marginBottom: '32px' }}>
             <Link href="/">
@@ -132,13 +132,16 @@ export default function TrainingPage() {
 
                       <p className="body-md text-gray-600" style={{ marginBottom: '16px' }}>{game.description}</p>
 
-                      <div style={{ marginBottom: '16px' }}>
-                        <span
-                          style={{ padding: '6px 14px' }}
-                          className="text-sm font-medium bg-(--color-yellow)/20 text-(--color-soft-black) rounded-full capitalize"
-                        >
-                          {game.category}
-                        </span>
+                      <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {game.categories.map((category) => (
+                          <span
+                            key={category}
+                            style={{ padding: '6px 14px' }}
+                            className="text-sm font-medium bg-(--color-yellow)/20 text-(--color-soft-black) rounded-full capitalize"
+                          >
+                            {category}
+                          </span>
+                        ))}
                       </div>
 
                       <Button
