@@ -156,5 +156,29 @@ export const games: Game[] = [
     categories: ['puzzle', 'mobile'],
     featured: false
   },
-
+  {
+    id: '7',
+    slug: 'my-halloween-friend',
+    title: 'My Halloween Friend',
+    subtitle: 'Trick or treat with a twist',
+    description: 'Who knew trick-or-treating could be so dangerous. make the right choices and you might just save the planet. A short, fun horror game.',
+    thumbnail: '/images/games/HalloweenFriend/friend_MAIN.png',
+    images: [
+      '/images/games/HalloweenFriend/friend_MAIN.png',
+      '/images/games/HalloweenFriend/friend_2.png',
+      '/images/games/HalloweenFriend/friend_3.png',
+      '/images/games/HalloweenFriend/friend_4.png'
+    ],
+    status: 'available',
+    platforms: ['Web'],
+    links: [
+      {
+        platform: 'Web',
+        url: 'https://elomelo-horror.itch.io/my-halloween-friend',
+        label: 'Play on itch.io'
+      }
+    ],
+    categories: ['horror', 'narrative'],
+    featured: false
+  },
 ];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Navigation } from '@/components/Navigation';
@@ -8,13 +8,19 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { ArrowLeft, Filter, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Filter, ExternalLink, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import { studentGames } from '@/lib/data/student_games';
 
 type StudentGameCategory = 'action' | 'horror' | 'puzzle' | 'adventure' | 'all';
 
 export default function TrainingPage() {
   const [selectedCategory, setSelectedCategory] = useState<StudentGameCategory>('all');
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [mobileScrollIndex, setMobileScrollIndex] = useState(0);
+  const [mobileScrollOffset, setMobileScrollOffset] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+  const mobileCardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const categories: Array<{ value: StudentGameCategory; label: string }> = [
     { value: 'all', label: 'All' },
@@ -27,6 +33,70 @@ export default function TrainingPage() {
   const filteredGames = selectedCategory === 'all'
     ? studentGames
     : studentGames.filter(game => game.categories.includes(selectedCategory));
+
+  // Desktop carousel logic
+  const columnsToShow = 3; // Desktop shows 3 columns
+  const gamesPerColumn = 2; // 2 rows per column = 6 games total visible
+  const totalColumns = Math.ceil(filteredGames.length / gamesPerColumn);
+  const maxScrollColumns = Math.max(0, totalColumns - columnsToShow);
+  const canScrollLeft = carouselIndex > 0;
+  const canScrollRight = carouselIndex < maxScrollColumns;
+
+  // Mobile vertical scroll logic
+  const mobileCardsToShow = 4;
+  const maxMobileScroll = Math.max(0, filteredGames.length - mobileCardsToShow);
+  const canScrollUp = mobileScrollIndex > 0;
+  const canScrollDown = mobileScrollIndex < maxMobileScroll;
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (direction === 'left' && canScrollLeft) {
+      setCarouselIndex(carouselIndex - 1); // Scroll by 1 column
+    } else if (direction === 'right' && canScrollRight) {
+      setCarouselIndex(carouselIndex + 1); // Scroll by 1 column
+    }
+  };
+
+  const scrollMobile = (direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' 
+      ? Math.max(0, mobileScrollIndex - 1)
+      : Math.min(maxMobileScroll, mobileScrollIndex + 1);
+    
+    if (newIndex !== mobileScrollIndex) {
+      setMobileScrollIndex(newIndex);
+      
+      // When scrolling down, calculate offset to show the new card fully at bottom
+      // When scrolling up, show the card at top
+      if (direction === 'down' && newIndex < filteredGames.length - 1) {
+        // Scroll so that card at newIndex + 3 (4th visible card) is fully visible
+        const targetIndex = Math.min(newIndex + 3, filteredGames.length - 1);
+        const targetCard = mobileCardRefs.current[targetIndex];
+        const currentCard = mobileCardRefs.current[newIndex];
+        
+        if (targetCard && currentCard) {
+          // Calculate offset to show current card at top
+          setMobileScrollOffset(currentCard.offsetTop);
+        }
+      } else {
+        // Scroll up - show card at top
+        const cardElement = mobileCardRefs.current[newIndex];
+        if (cardElement) {
+          setMobileScrollOffset(cardElement.offsetTop);
+        }
+      }
+    }
+  };
+
+  const handleCategoryChange = (category: StudentGameCategory) => {
+    setSelectedCategory(category);
+    setCarouselIndex(0); // Reset carousel when category changes
+    setMobileScrollIndex(0); // Reset mobile scroll when category changes
+    setMobileScrollOffset(0); // Reset mobile scroll offset
+  };
+
+  // Reset card refs when games change
+  useEffect(() => {
+    mobileCardRefs.current = mobileCardRefs.current.slice(0, filteredGames.length);
+  }, [filteredGames.length]);
 
   return (
     <main className="min-h-screen bg-(--color-warm-white)">
@@ -93,7 +163,7 @@ export default function TrainingPage() {
                 <Button
                   key={category.value}
                   variant={selectedCategory === category.value ? 'default' : 'outline'}
-                  onClick={() => setSelectedCategory(category.value)}
+                  onClick={() => handleCategoryChange(category.value)}
                   style={{ 
                     padding: '14px 28px',
                     minWidth: '120px',
@@ -110,60 +180,244 @@ export default function TrainingPage() {
               ))}
             </div>
 
-            {/* Games Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '32px' }}>
-              {filteredGames.map((game) => (
-                <Card key={game.id} className="border-2 border-gray-200 hover:border-(--color-coral) transition-all duration-300 hover:shadow-xl">
-                  <CardContent className="p-0">
-                    <AspectRatio ratio={16 / 9} className="bg-gray-100 overflow-hidden">
-                      <Image
-                        src={game.thumbnail}
-                        alt={game.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </AspectRatio>
-
-                    <div style={{ padding: '24px' }}>
-                      <h3 className="heading-sm text-(--color-soft-black)" style={{ marginBottom: '12px' }}>
-                        {game.name}
-                      </h3>
-
-                      <p className="body-md text-gray-600" style={{ marginBottom: '16px' }}>{game.description}</p>
-
-                      <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {game.categories.map((category) => (
-                          <span
-                            key={category}
-                            style={{ padding: '6px 14px' }}
-                            className="text-sm font-medium bg-(--color-yellow)/20 text-(--color-soft-black) rounded-full capitalize"
-                          >
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-
-                      <Button
-                        asChild
-                        style={{ padding: '12px 20px', height: 'auto', width: '100%' }}
-                        className="bg-(--color-coral) hover:bg-(--color-coral-dark) text-white font-semibold"
-                      >
-                        <a href={game.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                          <span>Play Game</span>
-                          <ExternalLink size={16} />
-                        </a>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {filteredGames.length === 0 && (
+            {/* Games Carousel */}
+            {filteredGames.length === 0 ? (
               <div className="text-center" style={{ padding: '48px 0' }}>
                 <p className="body-lg text-gray-500">No games found in this category.</p>
               </div>
+            ) : (
+              <>
+                {/* Desktop Carousel (horizontal) */}
+                <div className="hidden lg:flex relative items-center justify-center w-full">
+                  {/* Left Arrow */}
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    disabled={!canScrollLeft}
+                    className="absolute left-0 z-10 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #e5e7eb'
+                    }}
+                    aria-label="Previous games"
+                  >
+                    <ChevronLeft size={28} className="text-gray-700" />
+                  </button>
+
+                  {/* Carousel Container */}
+                  <div 
+                    ref={carouselRef}
+                    className="overflow-hidden w-full"
+                    style={{ maxWidth: '1400px', paddingLeft: '60px', paddingRight: '60px' }}
+                  >
+                    <div 
+                      className="transition-transform duration-500 ease-in-out"
+                      style={{
+                        display: 'flex',
+                        gap: '32px',
+                        transform: `translateX(calc(-${carouselIndex} * (100% / ${columnsToShow} + 32px)))`
+                      }}
+                    >
+                      {Array.from({ length: totalColumns }).map((_, colIndex) => (
+                        <div
+                          key={colIndex}
+                          style={{
+                            width: `calc((100% - ${(columnsToShow - 1) * 32}px) / ${columnsToShow})`,
+                            flexShrink: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '32px'
+                          }}
+                        >
+                          {filteredGames
+                            .slice(colIndex * gamesPerColumn, (colIndex + 1) * gamesPerColumn)
+                            .map((game) => (
+                              <div key={game.id} className="flex justify-center">
+                                <Card className="border-2 border-gray-200 hover:border-(--color-coral) transition-all duration-300 hover:shadow-xl w-full">
+                                  <CardContent className="p-0">
+                                    <AspectRatio ratio={16 / 9} className="bg-gray-100 overflow-hidden">
+                                      <Image
+                                        src={game.thumbnail}
+                                        alt={game.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                      />
+                                    </AspectRatio>
+
+                                    <div style={{ padding: '24px' }}>
+                                      <h3 className="heading-sm text-(--color-soft-black)" style={{ marginBottom: '12px' }}>
+                                        {game.name}
+                                      </h3>
+
+                                      <p className="body-md text-gray-600" style={{ marginBottom: '16px' }}>{game.description}</p>
+
+                                      <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {game.categories.map((category) => (
+                                          <span
+                                            key={category}
+                                            style={{ padding: '6px 14px' }}
+                                            className="text-sm font-medium bg-(--color-yellow)/20 text-(--color-soft-black) rounded-full capitalize"
+                                          >
+                                            {category}
+                                          </span>
+                                        ))}
+                                      </div>
+
+                                      <Button
+                                        asChild
+                                        style={{ padding: '12px 20px', height: 'auto', width: '100%' }}
+                                        className="bg-(--color-coral) hover:bg-(--color-coral-dark) text-white font-semibold"
+                                      >
+                                        <a href={game.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                          <span>Play Game</span>
+                                          <ExternalLink size={16} />
+                                        </a>
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    disabled={!canScrollRight}
+                    className="absolute right-0 z-10 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #e5e7eb'
+                    }}
+                    aria-label="Next games"
+                  >
+                    <ChevronRight size={28} className="text-gray-700" />
+                  </button>
+                </div>
+
+                {/* Mobile Carousel (vertical) */}
+                <div className="lg:hidden relative flex flex-col items-center w-full">
+                  {/* Up Arrow */}
+                  <button
+                    onClick={() => scrollMobile('up')}
+                    disabled={!canScrollUp}
+                    className="mb-4 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #e5e7eb'
+                    }}
+                    aria-label="Scroll up"
+                  >
+                    <ChevronUp size={28} className="text-gray-700" />
+                  </button>
+
+                  {/* Mobile Scroll Container */}
+                  <div 
+                    className="overflow-hidden w-full max-w-md"
+                    style={{
+                      minHeight: '2000px',
+                      maxHeight: '2000px'
+                    }}
+                  >
+                    <div
+                      ref={mobileContainerRef}
+                      className="transition-transform duration-500 ease-in-out"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '24px',
+                        transform: `translateY(-${mobileScrollOffset}px)`
+                      }}
+                    >
+                      {filteredGames.map((game, index) => (
+                        <div 
+                          key={game.id} 
+                          ref={(el) => { mobileCardRefs.current[index] = el; }}
+                          className="flex justify-center"
+                        >
+                          <Card className="border-2 border-gray-200 hover:border-(--color-coral) transition-all duration-300 hover:shadow-xl w-full">
+                            <CardContent className="p-0">
+                              <AspectRatio ratio={16 / 9} className="bg-gray-100 overflow-hidden">
+                                <Image
+                                  src={game.thumbnail}
+                                  alt={game.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                              </AspectRatio>
+
+                              <div style={{ padding: '24px' }}>
+                                <h3 className="heading-sm text-(--color-soft-black)" style={{ marginBottom: '12px' }}>
+                                  {game.name}
+                                </h3>
+
+                                <p className="body-md text-gray-600" style={{ marginBottom: '16px' }}>{game.description}</p>
+
+                                <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                  {game.categories.map((category) => (
+                                    <span
+                                      key={category}
+                                      style={{ padding: '6px 14px' }}
+                                      className="text-sm font-medium bg-(--color-yellow)/20 text-(--color-soft-black) rounded-full capitalize"
+                                    >
+                                      {category}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                <Button
+                                  asChild
+                                  style={{ padding: '12px 20px', height: 'auto', width: '100%' }}
+                                  className="bg-(--color-coral) hover:bg-(--color-coral-dark) text-white font-semibold"
+                                >
+                                  <a href={game.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                    <span>Play Game</span>
+                                    <ExternalLink size={16} />
+                                  </a>
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Down Arrow */}
+                  <button
+                    onClick={() => scrollMobile('down')}
+                    disabled={!canScrollDown}
+                    className="mt-4 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #e5e7eb'
+                    }}
+                    aria-label="Scroll down"
+                  >
+                    <ChevronDown size={28} className="text-gray-700" />
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>

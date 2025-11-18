@@ -55,5 +55,13 @@ export const studentGames: StudentGame[] = [
     link: 'https://retrorabiul.itch.io/starry-slide',
     categories: ['action'],
     thumbnail: '/images/training/StarrySlide/StarrySlideMain.png'
+  },
+  {
+    id: '7',
+    name: 'At Night 3D',
+    description: 'A 3D version of At Night. Can you escape the zombie?',
+    link: 'https://retrorabiul.itch.io/at-night-3d',
+    categories: ['action'],
+    thumbnail: '/images/training/AtNight3D/Night3DMain.png'
   }
 ];

@@ -1,18 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Navigation } from '@/components/Navigation';
 import { VideoEmbed } from '@/components/VideoEmbed';
 import { GameCard } from '@/components/GameCard';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Filter } from 'lucide-react';
+import { Filter, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import { games } from '@/lib/data/games';
 import { GameCategory } from '@/lib/types';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<GameCategory | 'all'>('all');
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [mobileScrollIndex, setMobileScrollIndex] = useState(0);
+  const [mobileScrollOffset, setMobileScrollOffset] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+  const mobileCardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const categories: Array<{ value: GameCategory | 'all'; label: string }> = [
     { value: 'all', label: 'All' },
@@ -25,6 +31,70 @@ export default function Home() {
   const filteredGames = selectedCategory === 'all'
     ? games
     : games.filter(game => game.categories.includes(selectedCategory));
+
+  // Desktop carousel logic
+  const columnsToShow = 3; // Desktop shows 3 columns
+  const gamesPerColumn = 2; // 2 rows per column = 6 games total visible
+  const totalColumns = Math.ceil(filteredGames.length / gamesPerColumn);
+  const maxScrollColumns = Math.max(0, totalColumns - columnsToShow);
+  const canScrollLeft = carouselIndex > 0;
+  const canScrollRight = carouselIndex < maxScrollColumns;
+
+  // Mobile vertical scroll logic
+  const mobileCardsToShow = 4;
+  const maxMobileScroll = Math.max(0, filteredGames.length - mobileCardsToShow);
+  const canScrollUp = mobileScrollIndex > 0;
+  const canScrollDown = mobileScrollIndex < maxMobileScroll;
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (direction === 'left' && canScrollLeft) {
+      setCarouselIndex(carouselIndex - 1); // Scroll by 1 column
+    } else if (direction === 'right' && canScrollRight) {
+      setCarouselIndex(carouselIndex + 1); // Scroll by 1 column
+    }
+  };
+
+  const scrollMobile = (direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' 
+      ? Math.max(0, mobileScrollIndex - 1)
+      : Math.min(maxMobileScroll, mobileScrollIndex + 1);
+    
+    if (newIndex !== mobileScrollIndex) {
+      setMobileScrollIndex(newIndex);
+      
+      // When scrolling down, calculate offset to show the new card fully at bottom
+      // When scrolling up, show the card at top
+      if (direction === 'down' && newIndex < filteredGames.length - 1) {
+        // Scroll so that card at newIndex + 3 (4th visible card) is fully visible
+        const targetIndex = Math.min(newIndex + 3, filteredGames.length - 1);
+        const targetCard = mobileCardRefs.current[targetIndex];
+        const currentCard = mobileCardRefs.current[newIndex];
+        
+        if (targetCard && currentCard) {
+          // Calculate offset to show current card at top
+          setMobileScrollOffset(currentCard.offsetTop);
+        }
+      } else {
+        // Scroll up - show card at top
+        const cardElement = mobileCardRefs.current[newIndex];
+        if (cardElement) {
+          setMobileScrollOffset(cardElement.offsetTop);
+        }
+      }
+    }
+  };
+
+  const handleCategoryChange = (category: GameCategory | 'all') => {
+    setSelectedCategory(category);
+    setCarouselIndex(0); // Reset carousel when category changes
+    setMobileScrollIndex(0); // Reset mobile scroll when category changes
+    setMobileScrollOffset(0); // Reset mobile scroll offset
+  };
+
+  // Reset card refs when games change
+  useEffect(() => {
+    mobileCardRefs.current = mobileCardRefs.current.slice(0, filteredGames.length);
+  }, [filteredGames.length]);
 
   return (
     <main className="min-h-screen">
@@ -94,7 +164,7 @@ export default function Home() {
               <Button
                 key={category.value}
                 variant={selectedCategory === category.value ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category.value)}
+                onClick={() => handleCategoryChange(category.value)}
                 style={{ 
                   padding: '14px 28px',
                   minWidth: '120px',
@@ -111,21 +181,158 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Games Grid */}
-          <div className="flex justify-center w-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-[1400px]">
-              {filteredGames.map((game) => (
-                <div key={game.id} className="flex justify-center">
-                  <GameCard game={game} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {filteredGames.length === 0 && (
+          {/* Games Carousel */}
+          {filteredGames.length === 0 ? (
             <div className="text-center py-12">
               <p className="body-lg text-gray-500">No games found in this category.</p>
             </div>
+          ) : (
+            <>
+              {/* Desktop Carousel (horizontal) */}
+              <div className="hidden lg:flex relative items-center justify-center w-full">
+                {/* Left Arrow */}
+                <button
+                  onClick={() => scrollCarousel('left')}
+                  disabled={!canScrollLeft}
+                  className="absolute left-0 z-10 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid #e5e7eb'
+                  }}
+                  aria-label="Previous games"
+                >
+                  <ChevronLeft size={28} className="text-gray-700" />
+                </button>
+
+                {/* Carousel Container */}
+                <div 
+                  ref={carouselRef}
+                  className="overflow-hidden w-full"
+                  style={{ maxWidth: '1400px', paddingLeft: '60px', paddingRight: '60px' }}
+                >
+                  <div 
+                    className="transition-transform duration-500 ease-in-out"
+                    style={{
+                      display: 'flex',
+                      gap: '32px',
+                      transform: `translateX(calc(-${carouselIndex} * (100% / ${columnsToShow} + 32px)))`
+                    }}
+                  >
+                    {Array.from({ length: totalColumns }).map((_, colIndex) => (
+                      <div
+                        key={colIndex}
+                        style={{
+                          width: `calc((100% - ${(columnsToShow - 1) * 32}px) / ${columnsToShow})`,
+                          flexShrink: 0,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '32px'
+                        }}
+                      >
+                        {filteredGames
+                          .slice(colIndex * gamesPerColumn, (colIndex + 1) * gamesPerColumn)
+                          .map((game) => (
+                            <div key={game.id} className="flex justify-center">
+                              <GameCard game={game} />
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Arrow */}
+                <button
+                  onClick={() => scrollCarousel('right')}
+                  disabled={!canScrollRight}
+                  className="absolute right-0 z-10 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid #e5e7eb'
+                  }}
+                  aria-label="Next games"
+                >
+                  <ChevronRight size={28} className="text-gray-700" />
+                </button>
+              </div>
+
+              {/* Mobile Carousel (vertical) */}
+              <div className="lg:hidden relative flex flex-col items-center w-full">
+                {/* Up Arrow */}
+                <button
+                  onClick={() => scrollMobile('up')}
+                  disabled={!canScrollUp}
+                  className="mb-4 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid #e5e7eb'
+                  }}
+                  aria-label="Scroll up"
+                >
+                  <ChevronUp size={28} className="text-gray-700" />
+                </button>
+
+                {/* Mobile Scroll Container */}
+                <div 
+                  className="overflow-hidden w-full max-w-md"
+                  style={{
+                    minHeight: '1800px',
+                    maxHeight: '1800px'
+                  }}
+                >
+                  <div
+                    ref={mobileContainerRef}
+                    className="transition-transform duration-500 ease-in-out"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '24px',
+                      transform: `translateY(-${mobileScrollOffset}px)`
+                    }}
+                  >
+                    {filteredGames.map((game, index) => (
+                      <div 
+                        key={game.id} 
+                        ref={(el) => { mobileCardRefs.current[index] = el; }}
+                        className="flex justify-center"
+                      >
+                        <GameCard game={game} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Down Arrow */}
+                <button
+                  onClick={() => scrollMobile('down')}
+                  disabled={!canScrollDown}
+                  className="mt-4 bg-white rounded-full shadow-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid #e5e7eb'
+                  }}
+                  aria-label="Scroll down"
+                >
+                  <ChevronDown size={28} className="text-gray-700" />
+                </button>
+              </div>
+            </>
           )}
         </div>
       </section>
