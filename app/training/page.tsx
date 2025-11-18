@@ -64,24 +64,9 @@ export default function TrainingPage() {
     if (newIndex !== mobileScrollIndex) {
       setMobileScrollIndex(newIndex);
       
-      // When scrolling down, calculate offset to show the new card fully at bottom
-      // When scrolling up, show the card at top
-      if (direction === 'down' && newIndex < filteredGames.length - 1) {
-        // Scroll so that card at newIndex + 3 (4th visible card) is fully visible
-        const targetIndex = Math.min(newIndex + 3, filteredGames.length - 1);
-        const targetCard = mobileCardRefs.current[targetIndex];
-        const currentCard = mobileCardRefs.current[newIndex];
-        
-        if (targetCard && currentCard) {
-          // Calculate offset to show current card at top
-          setMobileScrollOffset(currentCard.offsetTop);
-        }
-      } else {
-        // Scroll up - show card at top
-        const cardElement = mobileCardRefs.current[newIndex];
-        if (cardElement) {
-          setMobileScrollOffset(cardElement.offsetTop);
-        }
+      const cardElement = mobileCardRefs.current[newIndex];
+      if (cardElement) {
+        setMobileScrollOffset(cardElement.offsetTop);
       }
     }
   };
@@ -330,8 +315,8 @@ export default function TrainingPage() {
                   <div 
                     className="overflow-hidden w-full max-w-md"
                     style={{
-                      minHeight: '2000px',
-                      maxHeight: '2000px'
+                      minHeight: '2200px',
+                      maxHeight: '2200px'
                     }}
                   >
                     <div

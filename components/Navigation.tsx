@@ -73,17 +73,26 @@ export function Navigation() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="body-md text-(--color-soft-black) hover:text-(--color-coral) transition-colors duration-200"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
+          <div className="md:hidden border-t border-gray-200" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
+            <div className="flex flex-col">
+              {navLinks.map((link, index) => (
+                <div key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="block text-(--color-soft-black) hover:text-(--color-coral) hover:bg-gray-50 transition-all duration-200"
+                    style={{ 
+                      padding: '20px 16px',
+                      fontSize: '20px',
+                      fontWeight: '500'
+                    }}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                  {index < navLinks.length - 1 && (
+                    <div className="border-b border-gray-200" style={{ marginLeft: '16px', marginRight: '16px' }} />
+                  )}
+                </div>
               ))}
             </div>
           </div>
